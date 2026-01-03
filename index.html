@@ -1,0 +1,64 @@
+# aether
+Nothing 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/869/869869.png">
+    <title>AETHER HORIZON</title>
+    <style>
+        :root { --bg: #030712; --accent: #0ea5e9; --border: rgba(14, 165, 233, 0.3); --text: #f8fafc; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: monospace; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #gate { display: flex; flex-direction: column; gap: 20px; align-items: center; z-index: 100; }
+        input { background: transparent; border: 1px solid var(--border); color: var(--accent); padding: 15px; border-radius: 12px; text-align: center; font-size: 1.2rem; outline: none; }
+        button { background: var(--accent); color: #fff; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        #app-ui { display: none; width: 100%; max-width: 480px; padding: 20px; flex-direction: column; gap: 20px; }
+        .card { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border); border-radius: 24px; padding: 30px; text-align: center; }
+        .temp { font-size: 5rem; font-weight: 100; color: #fff; }
+        .radar { height: 300px; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+    <div id="gate">
+        <div style="letter-spacing: 5px; color: var(--accent); font-size: 0.8rem;">AETHER SECURITY</div>
+        <input type="password" id="key" placeholder="PASSCODE" maxlength="4">
+        <button onclick="unlock()">ACCESS SYSTEM</button>
+    </div>
+
+    <div id="app-ui">
+        <div class="card">
+            <div id="loc" style="letter-spacing: 3px; color: var(--accent); font-size: 0.7rem; margin-bottom: 10px;">CONNECTING...</div>
+            <div class="temp" id="t">--°</div>
+            <div id="d" style="color: #64748b;">INITIALIZING UPLINK</div>
+        </div>
+        <div class="radar"><iframe id="m"></iframe></div>
+        <button onclick="location.reload()">REFRESH SYSTEM</button>
+    </div>
+
+    <script>
+        const KEY = "1234";
+        function unlock() {
+            if(document.getElementById('key').value === KEY) {
+                document.getElementById('gate').style.display = 'none';
+                document.getElementById('app-ui').style.display = 'flex';
+                boot();
+            } else { alert("ACCESS DENIED"); }
+        }
+        async function boot() {
+            navigator.geolocation.getCurrentPosition(async p => {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${p.coords.latitude}&longitude=${p.coords.longitude}&current=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=auto`);
+                const data = await res.json();
+                document.getElementById('t').innerText = Math.round(data.current.temperature_2m) + "°";
+                document.getElementById('loc').innerText = "REMOTE_BASE_ACTIVE";
+                document.getElementById('d').innerText = "SYSTEM NOMINAL";
+                document.getElementById('m').src = `https://embed.windy.com/embed2.html?lat=${p.coords.latitude}&lon=${p.coords.longitude}&zoom=8&overlay=radar`;
+            });
+        }
+    </script>
+</body>
+</html>
